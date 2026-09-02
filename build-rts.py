@@ -781,12 +781,19 @@ class Stm32F4(arm.cortexm.CortexM4F):
         # STM32F405/407/415/417 share the same RCC/FLASH/interrupt layout
         # (they differ only by the presence of a CRYP/HASH peripheral, which
         # this runtime doesn't touch), so "F407" and "F417" both reuse the
-        # "stm32f4x7" source directory. More variants may be added here
-        # later, following the same pattern as stm32f0xx/stm32g0xx/stm32g4xx.
+        # "stm32f4x7" source directory. STM32F429 has its own RCC/FLASH/PWR
+        # register layout (e.g. a 3-level PWR_CR.VOS like F411, instead of
+        # F407/F417's single-bit VOS) and a larger interrupt vector table
+        # (it has LTDC/FMC/SAI/DMA2D/SPI4-6/UART7-8, which F407/F417 lack),
+        # so it gets its own "stm32f429" source directory. More variants may
+        # be added here later, following the same pattern as
+        # stm32f0xx/stm32g0xx/stm32g4xx.
         sub_family_dirs = {
             "F411": "stm32f411",
             "F407": "stm32f4x7",
             "F417": "stm32f4x7",
+            "F427": "stm32f429",
+            "F429": "stm32f429",
         }
 
         for sub_family, dir_name in sub_family_dirs.items():
