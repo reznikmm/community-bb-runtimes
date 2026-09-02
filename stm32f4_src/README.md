@@ -8,6 +8,8 @@ added over time:
 * STM32F411 (STM32F411Cx/Rx/Vx, with `x` being `C` for 256KB flash or `E`
   for 512KB flash)
 * STM32F405/407/415/417 (`MCU_Sub_Family` = `"F407"` or `"F417"`)
+* STM32F429 (`MCU_Sub_Family` = `"F429"`; the closely related F427/F437/F439
+  parts are not wired up yet, but could reuse the same runtime support)
 
 The following runtime profiles are supported:
 * light
@@ -71,15 +73,17 @@ is being targeted:
     <td>
       <tt>"F411"</tt>,
       <tt>"F407"</tt>,
-      <tt>"F417"</tt>
+      <tt>"F417"</tt>,
+      <tt>"F429"</tt>
     </td>
     <td><tt>"F411"</tt></td>
     <td>
       Specifies the sub-family part of the STM32F4 part number. For example,
-      choose "F411" for the STM32F411CEU6, or "F407" for the STM32F407VET6.
-      "F407" and "F417" share the same runtime support (they differ only by
-      the presence of a CRYP/HASH peripheral, which this runtime does not
-      use). More sub-families may be added in the future.
+      choose "F411" for the STM32F411CEU6, "F407" for the STM32F407VET6, or
+      "F429" for the STM32F429ZIT6. "F407" and "F417" share the same
+      runtime support (they differ only by the presence of a CRYP/HASH
+      peripheral, which this runtime does not use). More sub-families may
+      be added in the future.
     </td>
   </tr>
   <tr>
@@ -94,10 +98,10 @@ is being targeted:
     <td><tt>"C"</tt></td>
     <td>
       Specifies the pin count part of the STM32F4 part number. For example,
-      this is the "C" in "STM32F411CEU6", or the "V" in "STM32F407VET6".
-      This does not currently affect the generated runtime (all packages
-      share the same peripheral register layout); it is provided for
-      documentation and forward-compatibility.
+      this is the "C" in "STM32F411CEU6", the "V" in "STM32F407VET6", or the
+      "Z" in "STM32F429ZIT6". This does not currently affect the generated
+      runtime (all packages share the same peripheral register layout); it
+      is provided for documentation and forward-compatibility.
     </td>
   </tr>
   <tr>
@@ -105,13 +109,16 @@ is being targeted:
     <td>
       <tt>"C"</tt> (256KB),
       <tt>"E"</tt> (512KB),
-      <tt>"G"</tt> (1024KB)
+      <tt>"G"</tt> (1024KB),
+      <tt>"I"</tt> (2048KB)
     </td>
     <td><tt>"E"</tt></td>
     <td>
       Specifies the "flash memory size" part of the STM32F4 part number.
-      For example, this is the "E" in "STM32F411CEU6" or "STM32F407VET6".
-      "G" (1MB flash) is only meaningful for the STM32F407/F417 sub-family.
+      For example, this is the "E" in "STM32F411CEU6" or "STM32F407VET6",
+      or the "I" in "STM32F429ZIT6". "G" (1MB flash) is only meaningful for
+      the STM32F407/F417 sub-family; "I" (2MB flash) is only meaningful for
+      the STM32F429 sub-family.
     </td>
   </tr>
 </table>
@@ -139,6 +146,18 @@ light_tasking_stm32f4xx.MCU_Pin_Count          = "V"
 light_tasking_stm32f4xx.MCU_Flash_Memory_Size  = "E"
 light_tasking_stm32f4xx.APB1_Pre               = "DIV4"
 light_tasking_stm32f4xx.APB2_Pre               = "DIV2"
+```
+
+Or, to configure the runtime for the STM32F429ZIT6 (144-pin, 2MB flash).
+STM32F429 has higher APB1/APB2 frequency limits (45 / 90 MHz) than
+STM32F407/417 (42 / 84 MHz), so the default clock tree's APB prescalers
+(tuned to stay within STM32F407/417's tighter limits) are also safe to use
+unmodified here:
+```toml
+[configuration.values]
+light_tasking_stm32f4xx.MCU_Sub_Family         = "F429"
+light_tasking_stm32f4xx.MCU_Pin_Count          = "Z"
+light_tasking_stm32f4xx.MCU_Flash_Memory_Size  = "I"
 ```
 
 #### Clock Configuration
@@ -276,7 +295,8 @@ clock tree:
     <td><tt>"DIV2"</tt></td>
     <td>
       Specifies the divider to use for the APB1 prescaler. APB1 must not
-      exceed 50 MHz on STM32F411, or 42 MHz on STM32F405/407/415/417.
+      exceed 50 MHz on STM32F411, 42 MHz on STM32F405/407/415/417, or
+      45 MHz on STM32F429.
     </td>
   </tr>
   <tr>
@@ -288,7 +308,8 @@ clock tree:
     <td><tt>"DIV1"</tt></td>
     <td>
       Specifies the divider to use for the APB2 prescaler. APB2 must not
-      exceed 100 MHz on STM32F411, or 84 MHz on STM32F405/407/415/417.
+      exceed 100 MHz on STM32F411, 84 MHz on STM32F405/407/415/417, or
+      90 MHz on STM32F429.
     </td>
   </tr>
 </table>

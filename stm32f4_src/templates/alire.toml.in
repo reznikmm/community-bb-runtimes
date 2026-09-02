@@ -63,6 +63,18 @@ $(profile_underscored)_$(target).APB1_Pre = "DIV4"
 $(profile_underscored)_$(target).APB2_Pre = "DIV2"
 ```
 
+Or to configure the runtime for the STM32F429ZIT6 (144-pin, 2MB flash).
+STM32F427/429/437/439 have higher APB1/APB2 frequency limits (45 / 90 MHz)
+than STM32F407/417 (42 / 84 MHz), so the default clock tree's APB
+prescalers (tuned to stay within STM32F407/417's tighter limits) are also
+safe to use unmodified on STM32F429:
+```toml
+[configuration.values]
+$(profile_underscored)_$(target).MCU_Sub_Family         = "F429"
+$(profile_underscored)_$(target).MCU_Pin_Count          = "Z"
+$(profile_underscored)_$(target).MCU_Flash_Memory_Size  = "I"
+```
+
 By default, the runtime configures the clock tree for a 100 MHz system clock
 from the high-speed internal (HSI) oscillator, using the PLL. If you want a
 different clock configuration, then use the crate configuration variables to
@@ -122,7 +134,7 @@ generate_c = false
 output_dir = "gnat_user"
 
 [configuration.variables]
-MCU_Sub_Family = { type = "Enum", values = ["F411", "F407", "F417"], default = "F411" }
+MCU_Sub_Family = { type = "Enum", values = ["F411", "F407", "F417", "F429"], default = "F411" }
 MCU_Pin_Count = { type = "Enum", values = ["C", "R", "V", "Z", "I"], default = "C" }
 MCU_Flash_Memory_Size = { type = "String", default = "E" }
 

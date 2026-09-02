@@ -42,7 +42,7 @@ project Runtime_Build is
 
   --  Determine the ROM size based on the "flash memory size" part of the
   --  STM32 part number (e.g. "E" in STM32F411CEU6, "E" in STM32F407VET6,
-  --  or "G" in STM32F407VGT6).
+  --  "G" in STM32F407VGT6, or "I" in STM32F429ZIT6).
 
   ROM_Size := "512";
 
@@ -50,6 +50,7 @@ project Runtime_Build is
     when "C"    => ROM_Size := "256";
     when "E"    => ROM_Size := "512";
     when "G"    => ROM_Size := "1024";
+    when "I"    => ROM_Size := "2048";
     when others => ROM_Size := "512";
   end case;
 
@@ -68,6 +69,12 @@ project Runtime_Build is
         --  64KB CCM (Core Coupled Memory) region that this runtime does not
         --  currently expose as a usable memory region.
         RAM_Size := "128";
+
+     when "F429" =>
+        --  STM32F427/429/437/439 have a 192KB main SRAM (contiguous SRAM1 +
+        --  SRAM2 + SRAM3), plus a separate 64KB CCM region that this
+        --  runtime does not currently expose as a usable memory region.
+        RAM_Size := "192";
   end case;
 
   --  Select linker script

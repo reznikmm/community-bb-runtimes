@@ -59,6 +59,11 @@ additional_test_configs = [
             {
              "MCU_Sub_Family": "F407"
             },
+            {
+             "MCU_Sub_Family": "F429",
+             "MCU_Pin_Count": "Z",
+             "MCU_Flash_Memory_Size": "I",
+            },
         ],
     },
 ]
