@@ -34,15 +34,12 @@
  *                                                                          *
  ****************************************************************************/
 
-/* This region covers the 192KB main SRAM of STM32F427/429/437/439 (the
-   contiguous SRAM1 + SRAM2 + SRAM3 banks at 0x20000000). */
+/* STM32F411 has no separate CCM (Core Coupled Memory) region, so this is a
+   zero-length placeholder. */
 
 MEMORY
 {
-  sram  (rwx) : ORIGIN = 0x20000000, LENGTH = 192K
+  ccm   (rw)  : ORIGIN = 0x10000000, LENGTH = 0
 }
 
-REGION_ALIAS("sram_tx", sram)
-REGION_ALIAS("sram_ro", sram)
-REGION_ALIAS("sram_bs", sram)
-REGION_ALIAS("sram_da", sram)
+REGION_ALIAS("ccm_da", ccm)

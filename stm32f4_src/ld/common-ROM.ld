@@ -41,6 +41,7 @@
 
 INCLUDE memory-ROM.ld
 INCLUDE memory-RAM.ld
+INCLUDE memory-CCM.ld
 
 _DEFAULT_STACK_SIZE = 4*1024;
 

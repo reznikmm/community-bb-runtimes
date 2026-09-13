@@ -66,15 +66,30 @@ project Runtime_Build is
 
      when "F407" | "F417" =>
         --  STM32F405/407/415/417 have a 128KB main SRAM, plus a separate
-        --  64KB CCM (Core Coupled Memory) region that this runtime does not
-        --  currently expose as a usable memory region.
+        --  64KB CCM (Core Coupled Memory) region (see CCM_Size below).
         RAM_Size := "128";
 
      when "F427" | "F429" =>
         --  STM32F427/429/437/439 have a 192KB main SRAM (contiguous SRAM1 +
-        --  SRAM2 + SRAM3), plus a separate 64KB CCM region that this
-        --  runtime does not currently expose as a usable memory region.
+        --  SRAM2 + SRAM3), plus a separate 64KB CCM region (see CCM_Size
+        --  below).
         RAM_Size := "192";
+  end case;
+
+  --  Determine the CCM (Core Coupled Memory) size based on the sub-family
+  --  part of the STM32 part number.
+
+  CCM_Size := "0";
+
+  case $(profile_underscored)_Stm32f4xx_Config.MCU_Sub_Family is
+     when "F411" =>
+        --  STM32F411 has no separate CCM RAM.
+        CCM_Size := "0";
+
+     when "F407" | "F417" | "F427" | "F429" =>
+        --  STM32F405/407/415/417/427/429/437/439 all have a separate 64KB
+        --  CCM region at 0x10000000.
+        CCM_Size := "64";
   end case;
 
   --  Select linker script
@@ -91,6 +106,7 @@ project Runtime_Build is
          "-L" & Runtime_Build'Project_Dir & "/ld",
          "-L" & Runtime_Build'Project_Dir & "/ld/flash-" & ROM_Size,
          "-L" & Runtime_Build'Project_Dir & "/ld/ram-" & RAM_Size,
+         "-L" & Runtime_Build'Project_Dir & "/ld/ccm-" & CCM_Size,
          "-T" & "common-ROM.ld");
 
     when "RAM" =>
@@ -99,6 +115,7 @@ project Runtime_Build is
          "-L" & Runtime_Build'Project_Dir & "/ld",
          "-L" & Runtime_Build'Project_Dir & "/ld/flash-" & ROM_Size,
          "-L" & Runtime_Build'Project_Dir & "/ld/ram-" & RAM_Size,
+         "-L" & Runtime_Build'Project_Dir & "/ld/ccm-" & CCM_Size,
          "-T" & "common-RAM.ld");
 
     when "USER" =>
