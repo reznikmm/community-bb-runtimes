@@ -42,7 +42,7 @@ package System.BB.MCU_Parameters is
    pragma Preelaborate;
    use type Interfaces.STM32.Bit;
 
-   Number_Of_Interrupts : constant := 90;
+   Number_Of_Interrupts : constant := 91;
 
    procedure PWR_Overdrive_Enable;
 

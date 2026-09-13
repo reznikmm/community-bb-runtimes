@@ -39,7 +39,7 @@ package System.BB.MCU_Parameters is
    pragma No_Elaboration_Code_All;
    pragma Preelaborate;
 
-   Number_Of_Interrupts : constant := 81;
+   Number_Of_Interrupts : constant := 82;
 
    procedure PWR_Overdrive_Enable is null;
    --  STM32F405/407/415/417 have no over-drive mode. This is a no-op.
