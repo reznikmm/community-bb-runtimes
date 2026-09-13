@@ -4,9 +4,9 @@
 --                                                                          --
 --              S Y S T E M . B B . M C U _ P A R A M E T E R S             --
 --                                                                          --
---                                  S p e c                                 --
+--                                  B o d y                                 --
 --                                                                          --
---                   Copyright (C) 2016-2020, AdaCore                       --
+--                    Copyright (C) 2012-2026, Free Software Foundation     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -27,20 +27,33 @@
 -- GNAT was originally developed  by the GNAT team at  New York University. --
 -- Extensive contributions were provided by Ada Core Technologies Inc.      --
 --                                                                          --
--- The port of GNARL to bare board targets was initially developed by the   --
--- Real-Time Systems Group at the Technical University of Madrid.           --
---                                                                          --
 ------------------------------------------------------------------------------
 
---  This package defines MCU parameters for the STM32F411 family.
+with Interfaces.STM32.PWR; use Interfaces.STM32.PWR;
 
-package System.BB.MCU_Parameters is
-   pragma No_Elaboration_Code_All;
-   pragma Preelaborate;
+package body System.BB.MCU_Parameters is
 
-   Number_Of_Interrupts : constant := 85;
+   --------------------------
+   -- PWR_Overdrive_Enable --
+   --------------------------
 
-   procedure PWR_Overdrive_Enable is null;
-   --  STM32F411 has no over-drive mode. This is a no-op.
+   procedure PWR_Overdrive_Enable is
+   begin
+      --  Enable the over-drive mode
+
+      PWR_Periph.CR.ODEN := 1;
+
+      loop
+         exit when PWR_Periph.CSR.ODRDY = 1;
+      end loop;
+
+      --  Switch the voltage regulator to over-drive
+
+      PWR_Periph.CR.ODSWEN := 1;
+
+      loop
+         exit when PWR_Periph.CSR.ODSWRDY = 1;
+      end loop;
+   end PWR_Overdrive_Enable;
 
 end System.BB.MCU_Parameters;

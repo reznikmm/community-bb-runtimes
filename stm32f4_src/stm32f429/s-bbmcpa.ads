@@ -35,10 +35,15 @@
 --  This package defines MCU parameters for the STM32F427/429/437/439
 --  family.
 
+with Interfaces.STM32;
+
 package System.BB.MCU_Parameters is
    pragma No_Elaboration_Code_All;
    pragma Preelaborate;
+   use type Interfaces.STM32.Bit;
 
    Number_Of_Interrupts : constant := 90;
+
+   procedure PWR_Overdrive_Enable;
 
 end System.BB.MCU_Parameters;

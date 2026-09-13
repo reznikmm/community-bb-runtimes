@@ -154,7 +154,10 @@ Or, to configure the runtime for the STM32F429ZIT6 (144-pin, 2MB flash).
 STM32F427/429 has higher APB1/APB2 frequency limits (45 / 90 MHz) than
 STM32F407/417 (42 / 84 MHz), so the default clock tree's APB prescalers
 (tuned to stay within STM32F407/417's tighter limits) are also safe to use
-unmodified here:
+unmodified here. STM32F427/429 also supports a PLL P output (SYSCLK) of up
+to 180 MHz (instead of the 168 MHz available on STM32F407/417); the runtime
+automatically enables the PWR over-drive mode whenever the configured
+SYSCLK exceeds 168 MHz on this sub-family:
 ```toml
 [configuration.values]
 light_tasking_stm32f4xx.MCU_Sub_Family         = "F429"
@@ -254,7 +257,11 @@ clock tree:
     <td><tt>"DIV4"</tt></td>
     <td>
       Specifies the 'P' divider value in the PLL configuration. This
-      determines the PLL's main output, used as SYSCLK.
+      determines the PLL's main output, used as SYSCLK. The resulting
+      SYSCLK must not exceed 100 MHz on STM32F411, 168 MHz on
+      STM32F405/407/415/417, or 180 MHz on STM32F427/429 (the runtime
+      automatically enables PWR over-drive mode on STM32F427/429 whenever
+      SYSCLK exceeds 168 MHz).
     </td>
   </tr>
   <tr>

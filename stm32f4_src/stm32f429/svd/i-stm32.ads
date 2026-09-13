@@ -6,9 +6,6 @@ pragma Style_Checks (Off);
 
 --  This spec has been automatically generated from STM32F429x.svd
 
-
-with System;
-
 --  STM32F429x
 package Interfaces.STM32 is
    pragma Preelaborate;

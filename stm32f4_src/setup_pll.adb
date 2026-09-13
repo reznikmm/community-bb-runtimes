@@ -41,6 +41,7 @@ with Interfaces.STM32.PWR;       use Interfaces.STM32.PWR;
 with Interfaces.STM32.RCC;       use Interfaces.STM32.RCC;
 
 with System.BB.Board_Parameters; use System.BB.Board_Parameters;
+with System.BB.MCU_Parameters;
 
 with STM32F4xx_Runtime_Config;
 
@@ -70,11 +71,24 @@ procedure Setup_Pll is
    LSI_Enabled : constant Boolean := Config.LSI_Enabled;
    LSE_Enabled : constant Boolean := Config.LSE_Enabled;
 
+   --  STM32F427/429/437/439 support an over-drive mode (RM0090, PWR
+   --  section) which raises the maximum SYSCLK frequency in voltage
+   --  scale 1 from 168 MHz to 180 MHz.
+
+   Overdrive_Available : constant Boolean :=
+     (case Config.MCU_Sub_Family is
+        when Config.F411 | Config.F407 | Config.F417 => False,
+        when Config.F427 | Config.F429               => True);
+
+   Activate_Overdrive : constant Boolean :=
+     Activate_PLL and then Overdrive_Available
+       and then SYSCLK_Freq > 168_000_000;
+
    --  Flash latency, assuming VDD in the range 2.7 .. 3.6V. See RM0383
-   --  Table 10 (STM32F411) / RM0090 Table 11 (STM32F405/407/415/417 and,
-   --  without over-drive, STM32F427/429/437/439 as well -- this runtime
-   --  does not activate over-drive) "Number of wait states according to
-   --  CPU clock (HCLK) frequency".
+   --  Table 10 (STM32F411) / RM0090 Table 11 (STM32F405/407/415/417, and
+   --  STM32F427/429/437/439 both with and without over-drive -- the wait
+   --  state count for a given HCLK is the same either way) "Number of wait
+   --  states according to CPU clock (HCLK) frequency".
    --
    --  TODO(stm32f411): this table is written from general STM32F4 datasheet
    --  knowledge (it has not been cross-checked against RM0383's actual
@@ -105,10 +119,10 @@ procedure Setup_Pll is
    --    0 => Scale 2, SYSCLK <= 144 MHz
    --    1 => Scale 1, SYSCLK <= 168 MHz (reset value)
    --  F427/F429: PWR_CR.VOS[1:0] gains a 3rd scale, like F411, but with
-   --  different (non over-drive) frequency limits. See RM0090, PWR section:
+   --  different frequency limits. See RM0090, PWR section:
    --    01 => Scale 3, SYSCLK <= 120 MHz
    --    10 => Scale 2, SYSCLK <= 144 MHz
-   --    11 => Scale 1, SYSCLK <= 168 MHz (reset value)
+   --    11 => Scale 1, SYSCLK <= 168 MHz (or <= 180 MHz with over-drive)
 
    Voltage_Scaling : constant :=
      (case Config.MCU_Sub_Family is
@@ -164,8 +178,8 @@ procedure Setup_Pll is
       pragma Compile_Time_Error
         (Activate_PLL and then PLL_P_Freq not in PLL_P_Range,
          "Invalid PLL configuration. PLL P output frequency (SYSCLK) must"
-           & " be in the range 24 .. 100 MHz for F411, or 24 .. 168 MHz"
-           & " for F407/F417/F427/F429");
+           & " be in the range 24 .. 100 MHz for F411, 24 .. 168 MHz for"
+           & " F407/F417, or 24 .. 180 MHz for F427/F429");
 
       pragma Compile_Time_Error
         (Activate_PLL and then PLL_Q_Freq not in PLL_Q_Range,
@@ -288,6 +302,10 @@ procedure Setup_Pll is
          loop
             exit when RCC_Periph.CR.PLLRDY = 1;
          end loop;
+
+         if Activate_Overdrive then
+            System.BB.MCU_Parameters.PWR_Overdrive_Enable;
+         end if;
       end if;
 
       --  Configure derived clocks

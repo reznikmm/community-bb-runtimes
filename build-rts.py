@@ -842,6 +842,15 @@ class Stm32F4(arm.cortexm.CortexM4F):
                 f"{sub_family_dir}/svd/handler.S",
             )
 
+        for sub_family in ["F427", "F429"]:
+            sub_family_dir = f"stm32f4_src/{sub_family_dirs[sub_family]}"
+
+            self.add_source_alias(
+                "gnat",
+                f"{sub_family}/s-bbmcpa.adb",
+                f"{sub_family_dir}/s-bbmcpa.adb",
+            )
+
         # Don't warn about RAM sections having RWX permissions. Execute
         # permissions are currently needed for the stack since the compiler
         # may emit executable trampolines on the stack in some cases
