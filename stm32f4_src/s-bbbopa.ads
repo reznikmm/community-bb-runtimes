@@ -63,6 +63,8 @@ package System.BB.Board_Parameters is
    --  parts once over-drive mode is enabled; Setup_Pll enables over-drive
    --  automatically whenever the configured SYSCLK exceeds 168 MHz on
    --  these sub-families (see System.BB.MCU_Parameters.PWR_Overdrive_Enable).
+   --  STM32F446 (RM0390) has the same 168/180 MHz limits (with/without
+   --  over-drive) as STM32F427/429.
 
    type PLL_P_Range is range 24_000_000 ..
      (case STM32F4xx_Runtime_Config.MCU_Sub_Family is
@@ -70,7 +72,8 @@ package System.BB.Board_Parameters is
         when STM32F4xx_Runtime_Config.F407
            | STM32F4xx_Runtime_Config.F417 => 168_000_000,
         when STM32F4xx_Runtime_Config.F427
-           | STM32F4xx_Runtime_Config.F429 => 180_000_000);
+           | STM32F4xx_Runtime_Config.F429
+           | STM32F4xx_Runtime_Config.F446 => 180_000_000);
 
    PLL_IN_Freq : constant :=
      (case STM32F4xx_Runtime_Config.PLL_Src is
@@ -91,6 +94,15 @@ package System.BB.Board_Parameters is
 
    PLL_Q_Freq : constant :=
      PLL_VCO_Freq / STM32F4xx_Runtime_Config.PLL_Q_Div;
+
+   --  The PLL R output only exists on STM32F446 (RCC_PLLCFGR.PLLR, RM0390);
+   --  it is reserved on the other sub-families. This runtime doesn't use
+   --  it, but exposes the configured value for use by application code
+   --  (e.g. an I2S/SAI driver selecting PLLR as their clock source via
+   --  RCC_DCKCFGR.I2S1SRC/I2S2SRC).
+
+   PLL_R_Freq : constant :=
+     PLL_VCO_Freq / STM32F4xx_Runtime_Config.PLL_R_Div;
 
    SYSCLK_Freq : constant :=
      (case STM32F4xx_Runtime_Config.SYSCLK_Src is

@@ -6,7 +6,7 @@
 --                                                                          --
 --                                  S p e c                                 --
 --                                                                          --
---                   Copyright (C) 2016-2020, AdaCore                       --
+--                   Copyright (C) 2016-2026, AdaCore                      --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -32,18 +32,20 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  This package defines MCU parameters for the STM32F427/429/437/439
---  family.
+--  This package defines MCU parameters for the STM32F446 family.
 
 package System.BB.MCU_Parameters is
    pragma No_Elaboration_Code_All;
    pragma Preelaborate;
+   use type Interfaces.STM32.Bit;
 
-   Number_Of_Interrupts : constant := 91;
+   Number_Of_Interrupts : constant := 97;
 
    procedure PWR_Overdrive_Enable;
 
-   procedure Configure_PLL_R (Div : Positive) is null;
-   --  STM32F427/429/437/439 have no PLL R output. This is a no-op.
+   procedure Configure_PLL_R (Div : Positive);
+   --  Sets RCC_PLLCFGR.PLLR (main PLL division factor for the
+   --  I2S/SAI/SYSTEM/SPDIF-Rx clocks, RM0390). Must be called while the
+   --  main PLL is disabled, like the other RCC_PLLCFGR fields.
 
 end System.BB.MCU_Parameters;
