@@ -66,7 +66,8 @@ package System.BB.Board_Parameters is
 
    type PLL_P_Range is range 24_000_000 ..
      (case STM32F4xx_Runtime_Config.MCU_Sub_Family is
-        when STM32F4xx_Runtime_Config.F411 => 100_000_000,
+        when STM32F4xx_Runtime_Config.F411
+           | STM32F4xx_Runtime_Config.F412 => 100_000_000,
         when STM32F4xx_Runtime_Config.F407
            | STM32F4xx_Runtime_Config.F417 => 168_000_000,
         when STM32F4xx_Runtime_Config.F427

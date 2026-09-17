@@ -47,6 +47,17 @@ $(profile_underscored)_$(target).MCU_Pin_Count          = "R"
 $(profile_underscored)_$(target).MCU_Flash_Memory_Size  = "C"
 ```
 
+Or to configure the runtime for the STM32F412ZGT6 (144-pin, 1MB flash).
+STM32F412 has the same 100 MHz max SYSCLK, PWR_CR.VOS scales and APB1/APB2
+frequency limits (50 / 100 MHz) as STM32F411, so the default clock tree is
+also safe to use unmodified here:
+```toml
+[configuration.values]
+$(profile_underscored)_$(target).MCU_Sub_Family         = "F412"
+$(profile_underscored)_$(target).MCU_Pin_Count          = "Z"
+$(profile_underscored)_$(target).MCU_Flash_Memory_Size  = "G"
+```
+
 Or to configure the runtime for the STM32F407VET6 (100-pin, 512KB flash).
 Note that STM32F405/407/415/417 have lower APB1/APB2 frequency limits (42 /
 84 MHz) than STM32F411 (50 / 100 MHz), so the default clock tree (which
@@ -137,7 +148,7 @@ generate_c = false
 output_dir = "gnat_user"
 
 [configuration.variables]
-MCU_Sub_Family = { type = "Enum", values = ["F411", "F407", "F417", "F427", "F429"], default = "F411" }
+MCU_Sub_Family = { type = "Enum", values = ["F411", "F407", "F417", "F427", "F429", "F412"], default = "F411" }
 MCU_Pin_Count = { type = "Enum", values = ["C", "R", "V", "Z", "I"], default = "C" }
 MCU_Flash_Memory_Size = { type = "String", default = "E" }
 

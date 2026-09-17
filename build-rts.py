@@ -785,8 +785,16 @@ class Stm32F4(arm.cortexm.CortexM4F):
         # register layout (e.g. a 3-level PWR_CR.VOS like F411, instead of
         # F407/F417's single-bit VOS) and a larger interrupt vector table
         # (it has LTDC/FMC/SAI/DMA2D/SPI4-6/UART7-8, which F407/F417 lack),
-        # so it gets its own "stm32f429" source directory. More variants may
-        # be added here later, following the same pattern as
+        # so it gets its own "stm32f429" source directory. STM32F412 also
+        # gets its own "stm32f412" source directory: it shares STM32F411's
+        # 100 MHz max SYSCLK and 2-bit 3-scale PWR_CR.VOS (no over-drive),
+        # but its RCC_PLLCFGR has a real PLLR field (reserved on F411) used
+        # to clock I2S only (unlike STM32F446 elsewhere in this family,
+        # STM32F412 has no PLLR-as-SYSCLK option), it lacks Ethernet/DAC/
+        # USB OTG HS/DCMI and the GPIOI port, and it gains RNG, FSMC,
+        # QUADSPI, CAN1/CAN2, FMPI2C1 and DFSDM1 -- see
+        # stm32f4_src/stm32f412/svd/i-stm32-rcc.ads for details. More
+        # variants may be added here later, following the same pattern as
         # stm32f0xx/stm32g0xx/stm32g4xx.
         sub_family_dirs = {
             "F411": "stm32f411",
@@ -794,6 +802,7 @@ class Stm32F4(arm.cortexm.CortexM4F):
             "F417": "stm32f4x7",
             "F427": "stm32f429",
             "F429": "stm32f429",
+            "F412": "stm32f412",
         }
 
         for sub_family, dir_name in sub_family_dirs.items():
