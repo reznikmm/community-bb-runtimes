@@ -49,6 +49,26 @@ def find_gdb(crate_dir: pathlib.Path, target_triplet: str) -> pathlib.Path:
     return None if path is None else pathlib.Path(path)
 
 
+class SemihostingConnection:
+    """Own a lazily opened semihosting socket for an entire test session."""
+
+    def __init__(self, port: int):
+        self.port = port
+        self.socket = None
+
+    def connect(self):
+        if self.socket is None:
+            connection = socket.create_connection(("localhost", self.port), timeout=5.0)
+            connection.setblocking(False)
+            self.socket = connection
+        return self.socket
+
+    def close(self):
+        if self.socket is not None:
+            self.socket.close()
+            self.socket = None
+
+
 class GdbTargetInterface:
     """
     Interfaces with the target via GDB
@@ -67,6 +87,7 @@ class GdbTargetInterface:
         executable_file: pathlib.Path,
         gdbserver_port: int,
         terminal_io_port: Optional[int],
+        terminal_connection: Optional[SemihostingConnection] = None,
     ):
         """
         Set up the GdbTargetInterface
@@ -77,8 +98,11 @@ class GdbTargetInterface:
             GDB server
         :param terminal_io_port: The port number to connect to optionally read
             text output from the target program.
+        :param terminal_connection: Optional session-owned connection. Its owner
+            is responsible for closing it after all tests have finished.
         """
         self.terminal_io_port = terminal_io_port
+        self._owns_terminal_socket = terminal_connection is None
 
         gdb_path = find_gdb(runtime_crate_dir, "arm-eabi")
 
@@ -102,7 +126,9 @@ class GdbTargetInterface:
 
         self.enable_semihosting()
 
-        if terminal_io_port is None:
+        if terminal_connection is not None:
+            self.terminal_socket = terminal_connection.connect()
+        elif terminal_io_port is None:
             self.terminal_socket = None
         else:
             self.terminal_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -117,7 +143,7 @@ class GdbTargetInterface:
 
     def shutdown(self):
         """Gracefully shut down the GDB session"""
-        if self.terminal_socket is not None:
+        if self.terminal_socket is not None and self._owns_terminal_socket:
             self.terminal_socket.close()
         self.gdb.exit()
 
@@ -254,12 +280,14 @@ class OpenOcdInterface(GdbTargetInterface):
         executable_file: pathlib.Path,
         gdbserver_port: int,
         terminal_io_port: int,
+        terminal_connection: Optional[SemihostingConnection] = None,
     ):
         super(OpenOcdInterface, self).__init__(
             runtime_crate_dir=runtime_crate_dir,
             executable_file=executable_file,
             gdbserver_port=gdbserver_port,
             terminal_io_port=terminal_io_port,
+            terminal_connection=terminal_connection,
         )
 
     def enable_semihosting(self):
@@ -331,4 +359,3 @@ driver_classes = {
     "openocd-gdbserver": OpenOcdInterface,
     "st-util": StUtilInterface,
 }
-

@@ -88,6 +88,7 @@ def test_execute_on_target(
     target_if,
     gdbserver_port,
     text_io_port,
+    target_interface_options,
     working_dir: Optional[str],
     keep_build_files: bool,
 ):
@@ -150,10 +151,14 @@ def test_execute_on_target(
             executable_file=tc.executable_path,
             gdbserver_port=gdbserver_port,
             terminal_io_port=text_io_port,
+            **target_interface_options,
         ) as target_if:
             target_if.load()
             target_if.reset()
-            target_if.read_io(timeout=0.0)  # Clear input buffer
+            # Drain output left over from the previous test, including data
+            # buffered while building with a persistent semihosting connection.
+            while target_if.read_io(timeout=0.0):
+                pass
             target_if.run()
 
             # Keep reading output until the TEST COMPLETE marker is found

@@ -51,6 +51,22 @@ def target_if(request):
     return request.config.getoption("--target-if")
 
 
+@pytest.fixture(scope="session")
+def target_interface_options(request):
+    """Keep OpenOCD's semihosting client connected between test cases."""
+    if request.config.getoption("--target-if") != "openocd-gdbserver":
+        yield {}
+        return
+
+    connection = support.target_interface.SemihostingConnection(
+        request.config.getoption("--text-io-port")
+    )
+    try:
+        yield {"terminal_connection": connection}
+    finally:
+        connection.close()
+
+
 @pytest.fixture
 def gdbserver_port(request):
     return request.config.getoption("--gdbserver-port")

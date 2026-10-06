@@ -113,12 +113,14 @@ pytest . --target-board=rp2040 --target-if=jlink-gdbserver --gdbserver-port=2331
 
 ### On-Target Testing using OpenOCD
 
-> [!WARNING]
-> The OpenOCD interface seems to be quite unreliable, as OpenOCD tends to segfault
-> when the testsuite disconnects from the semihosting socket at the end of each
-> test. If you encounter segfaults with OpenOCD then you may need to run one
-> test at a time and restart OpenOCD after each test, or use a different GDB
-> server.
+The testsuite keeps one semihosting TCP connection open for the entire pytest
+session when using `--target-if=openocd-gdbserver`. This works around OpenOCD
+versions that segfault when the semihosting client disconnects: individual tests
+close their GDB sessions but leave the semihosting socket connected, so you can
+run multiple tests without manually restarting OpenOCD between them. The socket
+is opened lazily for the first on-target test and closed when pytest finishes.
+Affected OpenOCD versions may still crash at that final disconnect, requiring
+a restart before the next pytest invocation.
 
 1. Launch OpenOCD with the appropriate options for your debug interface and target,
    and configure OpenOCD to enable semihosting and redirect it via TCP
@@ -139,7 +141,7 @@ pytest . \
     --target-board=<target> \
     --target-if=openocd-gdbserver \
     --gdbserver-port=<gdb-port> \
-    --text-io-port<telnet-port>
+    --text-io-port=<telnet-port>
 ```
 
 Where:
