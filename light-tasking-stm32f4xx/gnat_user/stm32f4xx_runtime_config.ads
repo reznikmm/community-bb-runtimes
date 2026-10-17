@@ -1,0 +1,7 @@
+pragma Restrictions (No_Elaboration_Code);
+pragma Style_Checks (Off);
+
+with light_tasking_Stm32f4xx_Config;
+
+package STM32F4xx_Runtime_Config renames
+  light_tasking_Stm32f4xx_Config;

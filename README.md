@@ -1,10 +1,10 @@
-# STM32F411 Runtimes
+# STM32F4xx Runtimes
 
-> Generated from `abad6921cf0d2b6e7db1ab901b4705f4f7ae8c90` commit
+> Generated from `6b1945a5eeb72bb969f65e142fd5f29ae3cd7779` commit
 
-This repository generates GNAT runtimes that support all MCUs in the STM32F411
-family (STM32F411Cx/Rx/Vx, with `x` being `C` for 256KB flash or `E` for 512KB
-flash).
+This repository generates GNAT runtimes that support some MCUs in the STM32F4xx
+family (including TM32F411Cx/Rx/Vx, with `x` being `C` for 256KB flash
+or `E` for 512KB flash).
 
 The following runtime profiles are supported:
 * light
@@ -15,16 +15,16 @@ The following runtime profiles are supported:
 
 You can pin the runtime from GitHub branch:
 
-* alr pin light_tasking_stm32f411 --use=https://github.com/reznikmm/community-bb-runtimes --branch=16.0.0 --subdir=light-tasking-stm32f411
-* alr pin light_stm32f411 --use=https://github.com/reznikmm/community-bb-runtimes --branch=16.0.0 --subdir=light-stm32f411
-* alr pin embedded_stm32f411 --use=https://github.com/reznikmm/community-bb-runtimes --branch=16.0.0 --subdir=embedded-stm32f411
+* alr pin light_tasking_stm32f4xx --use=https://github.com/reznikmm/community-bb-runtimes --branch=16.0.0 --subdir=light-tasking-stm32f4xx
+* alr pin light_stm32f4xx --use=https://github.com/reznikmm/community-bb-runtimes --branch=16.0.0 --subdir=light-stm32f4xx
+* alr pin embedded_stm32f4xx --use=https://github.com/reznikmm/community-bb-runtimes --branch=16.0.0 --subdir=embedded-stm32f4xx
 
-Using the `light-tasking-stm32f411` runtime as an example, first edit your
+Using the `light-tasking-stm32f4xx` runtime as an example, first edit your
 `alire.toml` file and add the following elements:
- - Add `light_tasking_stm32f411` in the dependency list:
+ - Add `light_tasking_stm32f4xx` in the dependency list:
    ```toml
    [[depends-on]]
-   light_tasking_stm32f411 = "*"
+   light_tasking_stm32f4xx = "*"
    ```
  - if applicable, apply any runtime configuration variables
    (see "Runtime Configuration" below).
@@ -104,8 +104,8 @@ you will need to configure the runtime by adding the following to your
 `alire.toml`. For example, to configure the runtime for the STM32F411RCT6:
 ```toml
 [configuration.values]
-light_tasking_stm32f411.MCU_Pin_Count         = "R"
-light_tasking_stm32f411.MCU_Flash_Memory_Size = "C"
+light_tasking_stm32f4xx.MCU_Pin_Count         = "R"
+light_tasking_stm32f4xx.MCU_Flash_Memory_Size = "C"
 ```
 
 #### Clock Configuration
@@ -265,25 +265,25 @@ system clock from a 25 MHz HSE oscillator:
 ```toml
 [configuration.values]
 # Configure a 25 MHz HSE crystal oscillator
-light_tasking_stm32f411.HSE_Clock_Frequency = 25000000
-light_tasking_stm32f411.HSE_Bypass = false
+light_tasking_stm32f4xx.HSE_Clock_Frequency = 25000000
+light_tasking_stm32f4xx.HSE_Bypass = false
 
 # Select the PLL as the SYSCLK source, driven from HSE
-light_tasking_stm32f411.SYSCLK_Src = "PLL"
-light_tasking_stm32f411.PLL_Src = "HSE"
+light_tasking_stm32f4xx.SYSCLK_Src = "PLL"
+light_tasking_stm32f4xx.PLL_Src = "HSE"
 
 # Configure the PLL VCO to run at 400 MHz from the 25 MHz HSE
 # (fVCO = fHSE * (N/M) = 25 MHz * (192/12) = 400 MHz)
-light_tasking_stm32f411.PLL_M_Div = 12
-light_tasking_stm32f411.PLL_N_Mul = 192
+light_tasking_stm32f4xx.PLL_M_Div = 12
+light_tasking_stm32f4xx.PLL_N_Mul = 192
 
 # Configure the PLL P output (SYSCLK) to run at 100 MHz from the 400 MHz VCO
-light_tasking_stm32f411.PLL_P_Div = "DIV4"
+light_tasking_stm32f4xx.PLL_P_Div = "DIV4"
 
 # Configure the AHB, APB1 and APB2 prescalers
-light_tasking_stm32f411.AHB_Pre  = "DIV1"
-light_tasking_stm32f411.APB1_Pre = "DIV2"
-light_tasking_stm32f411.APB2_Pre = "DIV1"
+light_tasking_stm32f4xx.AHB_Pre  = "DIV1"
+light_tasking_stm32f4xx.APB1_Pre = "DIV2"
+light_tasking_stm32f4xx.APB2_Pre = "DIV1"
 ```
 
 #### Stack Sizes
@@ -310,9 +310,9 @@ The following variables configure the interrupt stack sizes:
 The runtime project files expose `*_BUILD` and `*_LIBRARY_TYPE` GPR
 scenario variables to configure the build mode (e.g. debug/production) and
 library type. These variables are prefixed with the name of the runtime in
-upper case. For example, for the light-tasking-stm32f411 runtime the
-variables are `LIGHT_TASKING_STM32F411_BUILD` and
-`LIGHT_TASKING_STM32F411_LIBRARY_TYPE` respectively.
+upper case. For example, for the light-tasking-stm32f4xx runtime the
+variables are `LIGHT_TASKING_STM32F4XX_BUILD` and
+`LIGHT_TASKING_STM32F4XX_LIBRARY_TYPE` respectively.
 
 The `*_BUILD` variable can be set to the following values:
 * `Production` (default) builds the runtime with optimization enabled and with
@@ -328,11 +328,11 @@ You can usually leave these set to their defaults, but if you want to set them
 explicitly then you can set them either by passing them on the command line
 when building your project with Alire:
 ```sh
-alr build -- -XLIGHT_TASKING_STM32F411_BUILD=Debug
+alr build -- -XLIGHT_TASKING_STM32F4XX_BUILD=Debug
 ```
 
 or by setting them in your project's `alire.toml`:
 ```toml
 [gpr-set-externals]
-LIGHT_TASKING_STM32F411_BUILD = "Debug"
+LIGHT_TASKING_STM32F4XX_BUILD = "Debug"
 ```
